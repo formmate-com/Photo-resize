@@ -3,29 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Resizer</title>
+    <title>Photo Resize Tool</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Photo Resizer</h1>
-        <div class="input-container">
-            <label for="imageInput">Choose an image:</label>
+        <h1>Photo Resize Tool</h1>
+        <div class="upload-area">
             <input type="file" id="imageInput" accept="image/*">
+            <label for="imageInput">Select Image</label>
         </div>
-        <div class="dimensions-container">
-            <label for="widthInput">Width (px):</label>
-            <input type="number" id="widthInput">
-            <label for="heightInput">Height (px):</label>
-            <input type="number" id="heightInput">
+
+        <div class="preview-area">
+            <img id="imagePreview" src="#" alt="Image Preview">
         </div>
+
+        <div class="controls">
+            <div class="dimension-controls">
+                <div class="input-group">
+                    <label for="unit">Unit:</label>
+                    <select id="unit">
+                        <option value="px" selected>Pixel (px)</option>
+                        <option value="cm">Centimeter (cm)</option>
+                        <option value="in">Inch (in)</option>
+                        <option value="mm">Millimeter (mm)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="width">Width:</label>
+                    <input type="number" id="width" placeholder="Width">
+                </div>
+                <div class="input-group">
+                    <label for="height">Height:</label>
+                    <input type="number" id="height" placeholder="Height">
+                </div>
+            </div>
+
+            <div class="quality-controls">
+                <label for="quality">Quality (0-100):</label>
+                <input type="range" id="quality" min="0" max="100" value="90">
+                <span id="qualityValue">90</span>
+            </div>
+
+            <div class="size-controls">
+                <label for="size">Target Size (KB):</label>
+                <input type="number" id="size" placeholder="e.g., 100">
+            </div>
+        </div>
+
         <button id="resizeButton">Resize Image</button>
-        <div class="output-container">
-            <h2>Resized Image:</h2>
-            <img id="resizedImage" src="" alt="Resized Image">
-            <a id="downloadLink" href="#" download="resized-image.png">Download Resized Image</a>
-        </div>
+        <a id="downloadLink" class="hidden">Download Resized Image</a>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
