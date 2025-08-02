@@ -1,110 +1,100 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const imageInput = document.getElementById('imageInput');
-    const imagePreview = document.getElementById('imagePreview');
-    const unitSelect = document.getElementById('unit');
-    const widthInput = document.getElementById('width');
-    const heightInput = document.getElementById('height');
-    const qualitySlider = document.getElementById('quality');
-    const qualityValue = document.getElementById('qualityValue');
-    const sizeInput = document.getElementById('size');
-    const resizeButton = document.getElementById('resizeButton');
-    const downloadLink = document.getElementById('downloadLink');
+const imageInput = document.getElementById('imageInput');
+const widthInput = document.getElementById('widthInput');
+const heightInput = document.getElementById('heightInput');
+const resizeButton = document.getElementById('resizeButton');
+const resizedImage = document.getElementById('resizedImage');
+const downloadLink = document.getElementById('downloadLink');
+const outputContainer = document.querySelector('.output-container');
 
-    let originalImage = null;
+let originalImage = null;
+let originalWidth = 0;
+let originalHeight = 0;
+let maintainAspectRatio = true; // Aspect ratio lock enabled by default
 
-    // Display selected image preview
-    imageInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                imagePreview.src = event.target.result;
-                imagePreview.style.display = 'block';
-                originalImage = new Image();
-                originalImage.src = event.target.result;
-                originalImage.onload = () => {
-                    widthInput.value = originalImage.width;
-                    heightInput.value = originalImage.height;
-                    unitSelect.value = 'px';
-                };
-            };
-            reader.readAsDataURL(file);
-            downloadLink.classList.add('hidden');
-        }
-    });
+// Function to perform high-quality resize using step-down resampling
+function highQualityResize(sourceImage, newWidth, newHeight) {
+    const srcWidth = sourceImage.width;
+    const srcHeight = sourceImage.height;
 
-    // Update quality slider value
-    qualitySlider.addEventListener('input', () => {
-        qualityValue.textContent = qualitySlider.value;
-    });
-
-    // Resize button functionality
-    resizeButton.addEventListener('click', () => {
-        if (!originalImage) {
-            alert('Please select an image first.');
-            return;
-        }
-
-        const dpi = 96; // Standard screen DPI
-        let targetWidth = parseFloat(widthInput.value);
-        let targetHeight = parseFloat(heightInput.value);
-        const unit = unitSelect.value;
-        const quality = parseInt(qualitySlider.value) / 100;
-        const targetSizeKB = parseFloat(sizeInput.value);
-
-        if (isNaN(targetWidth) || isNaN(targetHeight) || targetWidth <= 0 || targetHeight <= 0) {
-            alert('Please enter valid width and height.');
-            return;
-        }
-
-        // Convert units to pixels
-        if (unit === 'cm') {
-            targetWidth = (targetWidth / 2.54) * dpi;
-            targetHeight = (targetHeight / 2.54) * dpi;
-        } else if (unit === 'in') {
-            targetWidth = targetWidth * dpi;
-            targetHeight = targetHeight * dpi;
-        } else if (unit === 'mm') {
-            targetWidth = (targetWidth / 25.4) * dpi;
-            targetHeight = (targetHeight / 25.4) * dpi;
-        }
-
+    // If the size is the same or larger, no need for complex resampling
+    if (newWidth >= srcWidth && newHeight >= srcHeight) {
         const canvas = document.createElement('canvas');
-        canvas.width = targetWidth;
-        canvas.height = targetHeight;
+        canvas.width = newWidth;
+        canvas.height = newHeight;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(originalImage, 0, 0, targetWidth, targetHeight);
-
-        // Adjust quality to meet target file size
-        let currentQuality = quality;
-        let resizedDataUrl = canvas.toDataURL('image/jpeg', currentQuality);
-
-        if (!isNaN(targetSizeKB) && targetSizeKB > 0) {
-            let attempt = 0;
-            const maxAttempts = 10;
-            while (getBlobSize(resizedDataUrl) > targetSizeKB * 1024 && attempt < maxAttempts) {
-                currentQuality -= 0.1;
-                if (currentQuality < 0) {
-                    currentQuality = 0;
-                    break;
-                }
-                resizedDataUrl = canvas.toDataURL('image/jpeg', currentQuality);
-                attempt++;
-            }
-        }
-        
-        downloadLink.href = resizedDataUrl;
-        downloadLink.download = 'resized-image.jpg';
-        downloadLink.classList.remove('hidden');
-        alert(`Image resized! New quality is approximately ${(currentQuality * 100).toFixed(0)}.`);
-
-    });
-    
-    // Helper function to get blob size from data URL
-    function getBlobSize(dataUrl) {
-        const base64 = dataUrl.split(',')[1];
-        if (!base64) return 0;
-        const binary = atob(base64);
-        return binary.length;
+        ctx.drawImage(sourceImage, 0, 0, newWidth, newHeight);
+        return canvas;
     }
+
+    // Create a temporary canvas for resampling
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+
+    let currentWidth = srcWidth;
+    let currentHeight = srcHeight;
+    tempCanvas.width = currentWidth;
+    tempCanvas.height = currentHeight;
+    tempCtx.drawImage(sourceImage, 0, 0, currentWidth, currentHeight);
+
+    // Step-down resizing for better quality
+    while (currentWidth * 0.5 > newWidth && currentHeight * 0.5 > newHeight) {
+        const halfWidth = Math.floor(currentWidth * 0.5);
+        const halfHeight = Math.floor(currentHeight * 0.5);
+        
+        tempCtx.drawImage(tempCanvas, 0, 0, currentWidth, currentHeight, 0, 0, halfWidth, halfHeight);
+        
+        currentWidth = halfWidth;
+        currentHeight = halfHeight;
+    }
+
+    // Final resize to the target dimensions
+    const finalCanvas = document.createElement('canvas');
+    finalCanvas.width = newWidth;
+    finalCanvas.height = newHeight;
+    const finalCtx = finalCanvas.getContext('2d');
+    finalCtx.drawImage(tempCanvas, 0, 0, currentWidth, currentHeight, 0, 0, newWidth, newHeight);
+    
+    return finalCanvas;
+}
+
+imageInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            originalImage = new Image();
+            originalImage.onload = () => {
+                originalWidth = originalImage.width;
+                originalHeight = originalImage.height;
+                widthInput.value = originalWidth;
+                heightInput.value = originalHeight;
+            };
+            originalImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+resizeButton.addEventListener('click', () => {
+    if (!originalImage) {
+        alert('Please choose an image first.');
+        return;
+    }
+
+    const newWidth = parseInt(widthInput.value);
+    const newHeight = parseInt(heightInput.value);
+
+    if (isNaN(newWidth) || isNaN(newHeight) || newWidth <= 0 || newHeight <= 0) {
+        alert('Please enter valid dimensions.');
+        return;
+    }
+
+    // Use the high-quality resize function
+    const resizedCanvas = highQualityResize(originalImage, newWidth, newHeight);
+
+    const resizedImageDataURL = resizedCanvas.toDataURL('image/png'); // Using PNG for lossless quality after resize
+    resizedImage.src = resizedImageDataURL;
+    downloadLink.href = resizedImageDataURL;
+    outputContainer.style.display = 'block';
+    downloadLink.style.display = 'inline-block';
 });
