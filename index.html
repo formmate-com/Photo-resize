@@ -10,13 +10,14 @@
     <div class="container">
         <h1>Formmate Photo Resize</h1>
         
-        <div id="uploadArea" class="upload-area">
+        <!-- The entire upload area is now a label, making it fully clickable -->
+        <label for="imageInput" id="uploadArea" class="upload-area">
             <p class="upload-text">Drag & Drop your image here</p>
             <p class="upload-text-or">or</p>
-            <label for="imageInput" class="file-label">Browse Files</label>
+            <span class="browse-button">Browse Files</span>
             <input type="file" id="imageInput" accept="image/*" hidden>
             <p id="fileName" class="file-name-display"></p>
-        </div>
+        </label>
         
         <div class="settings-grid">
             <div class="input-group">
