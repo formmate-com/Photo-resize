@@ -3,10 +3,10 @@ body {
     background-color: #f0f2f5;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
     margin: 0;
-    padding: 1rem;
+    padding: 2rem;
     box-sizing: border-box;
 }
 
@@ -17,54 +17,68 @@ body {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     text-align: center;
     width: 100%;
-    max-width: 500px;
+    max-width: 600px;
 }
 
 h1 {
     color: #1c1e21;
     margin-top: 0;
-    margin-bottom: 0.5rem;
-    font-size: 1.75rem;
-}
-
-.subtitle {
-    color: #606770;
-    margin-top: 0;
-    margin-bottom: 2rem;
-}
-
-.input-container {
     margin-bottom: 1.5rem;
+    font-size: 2rem;
 }
 
-.file-label {
-    display: inline-block;
-    padding: 12px 20px;
-    background-color: #e7f3ff;
-    color: #007bff;
-    border: 1px dashed #007bff;
-    border-radius: 8px;
+/* Upload Area Styles */
+.upload-area {
+    border: 2px dashed #007bff;
+    border-radius: 12px;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    margin-bottom: 1.5rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-.file-label:hover {
+.upload-area:hover {
+    background-color: #e9f2ff;
+}
+
+.upload-area.dragover {
     background-color: #dcebff;
+    border-style: solid;
 }
 
-input[type="file"] {
-    display: none;
+.upload-text {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: #333;
 }
 
-#fileName {
+.upload-text-or {
+    margin: 0.5rem 0;
+    color: #6c757d;
+}
+
+.file-label {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
     margin-top: 0.5rem;
+}
+
+.file-name-display {
+    margin-top: 1rem;
     color: #555;
     font-size: 0.9rem;
+    font-weight: 500;
 }
 
-.dimensions-container {
-    display: flex;
-    justify-content: center;
+/* Grid for Settings and Dimensions */
+.settings-grid, .dimensions-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     margin-bottom: 1rem;
 }
@@ -73,6 +87,7 @@ input[type="file"] {
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
 }
 
 label {
@@ -81,13 +96,15 @@ label {
     font-weight: 500;
 }
 
-input[type="number"] {
-    width: 100px;
+input[type="number"], select {
+    width: 100%;
+    max-width: 150px;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
     text-align: center;
     font-size: 1rem;
+    box-sizing: border-box;
 }
 
 .options-container {
@@ -102,7 +119,7 @@ input[type="number"] {
 button {
     background-color: #007bff;
     color: #fff;
-    padding: 12px 25px;
+    padding: 14px 25px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -112,18 +129,9 @@ button {
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-button:hover {
-    background-color: #0056b3;
-}
-
-button:active {
-    transform: scale(0.98);
-}
-
-button:disabled {
-    background-color: #a0cffc;
-    cursor: not-allowed;
-}
+button:hover { background-color: #0056b3; }
+button:active { transform: scale(0.98); }
+button:disabled { background-color: #a0cffc; cursor: not-allowed; }
 
 .output-container {
     margin-top: 2rem;
@@ -135,7 +143,6 @@ button:disabled {
     height: auto;
     border: 1px solid #ddd;
     border-radius: 8px;
-    margin-top: 1rem;
     margin-bottom: 1rem;
 }
 
@@ -151,6 +158,4 @@ button:disabled {
     transition: background-color 0.3s ease;
 }
 
-#downloadLink:hover {
-    background-color: #218838;
-}
+#downloadLink:hover { background-color: #218838; }
