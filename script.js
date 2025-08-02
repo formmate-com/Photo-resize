@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finalCanvas.width = newWidth;
         finalCanvas.height = newHeight;
         const finalCtx = finalCanvas.getContext('2d');
+        finalCtx.imageSmoothingQuality = 'high';
         finalCtx.drawImage(tempCanvas, 0, 0, currentWidth, currentHeight, 0, 0, newWidth, newHeight);
         return finalCanvas;
     }
@@ -90,8 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Please select a valid image file.");
         }
     };
-
-    uploadArea.addEventListener('click', () => imageInput.click());
+    
+    // This single listener on the input is enough now.
     imageInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
     
     // Drag and Drop Listeners
@@ -173,4 +174,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 50);
     });
-});```
+});
