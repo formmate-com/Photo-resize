@@ -27,8 +27,9 @@ h1 {
     font-size: 2rem;
 }
 
-/* Upload Area Styles */
+/* Corrected Upload Area Styles */
 .upload-area {
+    display: block; /* Important for the label to behave like a block */
     border: 2px dashed #007bff;
     border-radius: 12px;
     padding: 2rem;
@@ -51,21 +52,23 @@ h1 {
     margin: 0 0 0.5rem 0;
     font-size: 1.1rem;
     color: #333;
+    pointer-events: none; /* Prevents text from interfering with clicks */
 }
 
 .upload-text-or {
     margin: 0.5rem 0;
     color: #6c757d;
+    pointer-events: none;
 }
 
-.file-label {
+.browse-button {
     display: inline-block;
     padding: 10px 20px;
     background-color: #007bff;
     color: white;
     border-radius: 6px;
-    cursor: pointer;
     margin-top: 0.5rem;
+    pointer-events: none;
 }
 
 .file-name-display {
@@ -90,7 +93,7 @@ h1 {
     text-align: center;
 }
 
-label {
+.input-group label {
     margin-bottom: 0.5rem;
     color: #555;
     font-weight: 500;
