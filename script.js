@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const uploadArea = document.getElementById('uploadArea');
     const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview'); // Get the preview img tag
     const fileNameDisplay = document.getElementById('fileName');
     const unitSelect = document.getElementById('unitSelect');
     const dpiInput = document.getElementById('dpiInput');
@@ -19,19 +20,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let originalHeightInPx = 0;
     let originalAspectRatio = 0;
 
-    // --- Conversion Functions ---
+    // Conversion Functions
     const convertToPx = (value, unit, dpi) => {
         if (unit === 'in') return value * dpi;
         if (unit === 'cm') return (value / 2.54) * dpi;
         if (unit === 'mm') return (value / 25.4) * dpi;
-        return value; // Default is px
+        return value;
     };
 
     const convertFromPx = (pixels, unit, dpi) => {
         if (unit === 'in') return pixels / dpi;
         if (unit === 'cm') return (pixels / dpi) * 2.54;
         if (unit === 'mm') return (pixels / dpi) * 25.4;
-        return pixels; // Default is px
+        return pixels;
     };
     
     // High-quality step-down resampling function
@@ -71,12 +72,19 @@ document.addEventListener('DOMContentLoaded', () => {
         heightInput.value = parseFloat(convertFromPx(originalHeightInPx, unit, dpi).toFixed(2));
     };
 
-    // --- Event Listeners ---
+    // Event Listeners
     const handleFile = (file) => {
         if (file && file.type.startsWith('image/')) {
             fileNameDisplay.textContent = file.name;
             const reader = new FileReader();
             reader.onload = (e) => {
+                const imageDataUrl = e.target.result;
+                
+                // *** THIS IS THE NEW CODE TO SHOW PREVIEW ***
+                imagePreview.src = imageDataUrl;
+                uploadArea.classList.add('image-loaded'); // Add class to trigger CSS changes
+                // *** END OF NEW CODE ***
+
                 originalImage = new Image();
                 originalImage.onload = () => {
                     originalWidthInPx = originalImage.width;
@@ -84,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     originalAspectRatio = originalWidthInPx / originalHeightInPx;
                     updateDimensionInputs();
                 };
-                originalImage.src = e.target.result;
+                originalImage.src = imageDataUrl;
             };
             reader.readAsDataURL(file);
         } else {
@@ -92,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // This single listener on the input is enough now.
     imageInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
     
     // Drag and Drop Listeners
@@ -110,11 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     uploadArea.addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]), false);
     
-    // Listen for changes in units or DPI
     unitSelect.addEventListener('change', updateDimensionInputs);
     dpiInput.addEventListener('input', updateDimensionInputs);
 
-    // Aspect ratio logic
     widthInput.addEventListener('input', () => {
         if (aspectRatioCheck.checked && originalAspectRatio > 0) {
             const newWidth = parseFloat(widthInput.value);
@@ -133,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Resize Button Click
     resizeButton.addEventListener('click', () => {
         if (!originalImage) {
             alert('Please choose an image first.');
